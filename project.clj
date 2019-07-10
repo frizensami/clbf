@@ -6,4 +6,5 @@
   :dependencies [[org.clojure/clojure "1.10.0"]]
   :main ^:skip-aot clbf.core
   :target-path "target/%s"
+  :plugins [[lein-cljfmt "0.6.4"]]
   :profiles {:uberjar {:aot :all}})
