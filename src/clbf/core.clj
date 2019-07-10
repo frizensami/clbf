@@ -25,20 +25,37 @@
                  \. :print
                  \, :input})
 
+; Helper functions
+
 (defn any-nil?
   "Checks for any nil values in sequence"
   [symbols]
-  (not (every? (complement nil?) symbols)))
+  (some nil? symbols))
 
-(defn is-bracket?
-  [chr]
-  (or (= chr \[) (= chr \])))
+(defn is-bracket-symbol?
+  [sym]
+  (or (= sym :while) (= sym :end)))
+
+(defn not-empty?
+  [coll]
+  (not (empty? coll)))
 
 (defn mismatched-brackets?
-  "Checks if any bracket's don't form a matching pair"
+  "Checks if any brackets don't form a matching pair"
   [symbols]
-  (let [brackets (filter (is-bracket? symbols) symbols)]
-    true))
+  (let [brackets (filter is-bracket-symbol? symbols)]
+    (loop [brackets brackets
+           bracket-stack '()]
+      (if (empty? brackets) ; Nothing left to process, return val depends on stack emptiness
+        (not-empty? bracket-stack)
+        (let [bracket (first brackets)] ; Still have brackets
+          (if (= bracket :while)
+            ; If it's an open bracket, push on stack and recur
+            (recur (rest brackets) (conj bracket-stack bracket))
+            ; Otherwise, pop off stack. If stack is empty, return true (mismatch)
+            (if (nil? (peek bracket-stack))
+              true
+              (recur (rest brackets) (pop bracket-stack)))))))))
 
 (defn check-for-errors
   "Check for any nil symbols or mismatched braces"
