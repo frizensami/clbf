@@ -86,6 +86,16 @@
   [bfstate]
   (assoc bfstate :code-idx (inc (get bfstate :code-idx))))
 
+(defn bfstate-rmov
+  "Increment the data pointer"
+  [bfstate]
+  (assoc bfstate :data-idx (inc (get bfstate :data-idx))))
+
+(defn bfstate-lmov
+  "Decrement the data pointer"
+  [bfstate]
+  (assoc bfstate :data-idx (dec (get bfstate :data-idx))))
+
 (defn bfstate-add
   "increment the byte at the data pointer"
   [bfstate]
@@ -97,7 +107,7 @@
     (bfstate-advance (assoc bfstate :data new-data))))
 
 (defn bfstate-sub
-  "increment the byte at the data pointer"
+  "Decrement the byte at the data pointer"
   [bfstate]
   (let [old-data (get bfstate :data)
         data-idx (get bfstate :data-idx)
@@ -112,6 +122,8 @@
   (let [current-symbol (nth (get bfstate :code) (get bfstate :code-idx))]
     (println current-symbol)
     (case current-symbol
+      :rmov (bfstate-rmov bfstate)
+      :lmov (bfstate-lmov bfstate)
       :add (bfstate-add bfstate)
       :sub (bfstate-sub bfstate)
       bfstate)))
