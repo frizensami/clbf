@@ -116,6 +116,26 @@
         new-data (assoc old-data data-idx new-data-val)]
     (bfstate-advance (assoc bfstate :data new-data))))
 
+(defn bfstate-print
+  "print the char code of the byte at the data pointer"
+  [bfstate]
+  (let [old-data (get bfstate :data)
+        data-idx (get bfstate :data-idx)
+        data-val (nth old-data data-idx)]
+    (print (char data-val))
+    (bfstate-advance bfstate)))
+
+(defn bfstate-input
+  "reads the current character into the current data cell"
+  [bfstate]
+  (let [old-data (get bfstate :data)
+        data-idx (get bfstate :data-idx)
+        ;new-data-val (.read *in*)
+        new-data-val (int (nth (seq (read-line)) 0))
+        new-data (assoc old-data data-idx new-data-val)]
+    (print new-data-val)
+    (bfstate-advance (assoc bfstate :data new-data))))
+
 (defn clbf-eval-loop
   "Execute symbol by symbol"
   [bfstate]
@@ -126,6 +146,8 @@
       :lmov (bfstate-lmov bfstate)
       :add (bfstate-add bfstate)
       :sub (bfstate-sub bfstate)
+      :print (bfstate-print bfstate)
+      :input (bfstate-input bfstate)
       bfstate)))
 
 (defn clbf-eval
