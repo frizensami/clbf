@@ -44,6 +44,11 @@
 ; array of integers (data), current data pointer
 (defrecord BFState [code code-idx open-bracket-idx data data-idx])
 
+(defn program-complete?
+  "Checks if the code pointer is past the end of the code symbol vector"
+  [bfstate]
+  (>= (get bfstate :code-idx) (count (get bfstate :code))))
+
 ; Primary functions for interpreter
 (defn mismatched-brackets?
   "Checks if any brackets don't form a matching pair"
@@ -82,22 +87,22 @@
 
 ; Evaluation functions
 (defn bfstate-advance
-  "Increases the code index pointer by 1"
+  "Increase the code index pointer by 1"
   [bfstate]
   (assoc bfstate :code-idx (inc (get bfstate :code-idx))))
 
 (defn bfstate-rmov
   "Increment the data pointer"
   [bfstate]
-  (assoc bfstate :data-idx (inc (get bfstate :data-idx))))
+  (bfstate-advance (assoc bfstate :data-idx (inc (get bfstate :data-idx)))))
 
 (defn bfstate-lmov
   "Decrement the data pointer"
   [bfstate]
-  (assoc bfstate :data-idx (dec (get bfstate :data-idx))))
+  (bfstate-advance (assoc bfstate :data-idx (dec (get bfstate :data-idx)))))
 
 (defn bfstate-add
-  "increment the byte at the data pointer"
+  "Increment the byte at the data pointer"
   [bfstate]
   (let [old-data (get bfstate :data)
         data-idx (get bfstate :data-idx)
@@ -117,7 +122,7 @@
     (bfstate-advance (assoc bfstate :data new-data))))
 
 (defn bfstate-print
-  "print the char code of the byte at the data pointer"
+  "Print the char code of the byte at the data pointer"
   [bfstate]
   (let [old-data (get bfstate :data)
         data-idx (get bfstate :data-idx)
@@ -126,29 +131,33 @@
     (bfstate-advance bfstate)))
 
 (defn bfstate-input
-  "reads the current character into the current data cell"
+  "Read the current character into the current data cell"
   [bfstate]
   (let [old-data (get bfstate :data)
         data-idx (get bfstate :data-idx)
         ;new-data-val (.read *in*)
         new-data-val (int (nth (seq (read-line)) 0))
         new-data (assoc old-data data-idx new-data-val)]
-    (print new-data-val)
+    ; (print new-data-val)
     (bfstate-advance (assoc bfstate :data new-data))))
 
 (defn clbf-eval-loop
   "Execute symbol by symbol"
   [bfstate]
-  (let [current-symbol (nth (get bfstate :code) (get bfstate :code-idx))]
-    (println current-symbol)
-    (case current-symbol
-      :rmov (bfstate-rmov bfstate)
-      :lmov (bfstate-lmov bfstate)
-      :add (bfstate-add bfstate)
-      :sub (bfstate-sub bfstate)
-      :print (bfstate-print bfstate)
-      :input (bfstate-input bfstate)
-      bfstate)))
+  (loop [bfstate bfstate]
+    (if (program-complete? bfstate)
+      bfstate
+      (let [current-symbol (nth (get bfstate :code) (get bfstate :code-idx))]
+        (println current-symbol)
+        (case current-symbol
+          :rmov (recur (bfstate-rmov bfstate))
+          :lmov (recur (bfstate-lmov bfstate))
+          :add (recur (bfstate-add bfstate))
+          :sub (recur (bfstate-sub bfstate))
+          :print (recur (bfstate-print bfstate))
+          :input (recur (bfstate-input bfstate))
+          (throw  (Exception. "Unrecognized symbol in parsed source code")))))))
+
 
 (defn clbf-eval
   "Runs the evaluator loop, passing it the initial program state"
