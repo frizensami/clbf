@@ -74,26 +74,56 @@
     symbols))
 
 (defn clbf-read
-  "Repl: Reader - Transform each source code char into internal symbol representation"
+  "Repl: Reader - Transform all source code chars into internal symbol representation"
   [src-code]
   (check-for-errors
    (map bf-symbols
         (seq src-code))))
 
+; Evaluation functions
+(defn bfstate-advance
+  "Increases the code index pointer by 1"
+  [bfstate]
+  (assoc bfstate :code-idx (inc (get bfstate :code-idx))))
+
+(defn bfstate-add
+  "increment the byte at the data pointer"
+  [bfstate]
+  (let [old-data (get bfstate :data)
+        data-idx (get bfstate :data-idx)
+        old-data-val (nth old-data data-idx)
+        new-data-val (inc old-data-val)
+        new-data (assoc old-data data-idx new-data-val)]
+    (bfstate-advance (assoc bfstate :data new-data))))
+
+(defn bfstate-sub
+  "increment the byte at the data pointer"
+  [bfstate]
+  (let [old-data (get bfstate :data)
+        data-idx (get bfstate :data-idx)
+        old-data-val (nth old-data data-idx)
+        new-data-val (dec old-data-val)
+        new-data (assoc old-data data-idx new-data-val)]
+    (bfstate-advance (assoc bfstate :data new-data))))
+
 (defn clbf-eval-loop
   "Execute symbol by symbol"
   [bfstate]
-  (let [symbol (nth (get bfstate :code) (get bfstate :code-idx))]
-    (println symbol)))
+  (let [current-symbol (nth (get bfstate :code) (get bfstate :code-idx))]
+    (println current-symbol)
+    (case current-symbol
+      :add (bfstate-add bfstate)
+      :sub (bfstate-sub bfstate)
+      bfstate)))
 
 (defn clbf-eval
-  "Repl: Evaluator"
-  [symbols] 
-  (clbf-eval-loop (map->BFState {:code (vec symbols)
+  "Runs the evaluator loop, passing it the initial program state"
+  [symbols]
+  (println (clbf-eval-loop (map->BFState {:code (vec symbols)
                                           :code-idx 0
                                           :open-bracket-idx 0
                                           :data (vec (replicate 10 0))
-                                          :data-idx 0})))
+                                          :data-idx 0}))))
 
 
 (defn repl
