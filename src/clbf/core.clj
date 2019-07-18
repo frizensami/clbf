@@ -42,7 +42,7 @@
 ; Data types
 ; BF code symbols, index to next symbol to execute, index of last open bracket,
 ; array of integers (data), current data pointer
-(defrecord BFState [code code-idx open-bracket-idx data data-idx])
+(defrecord BFState [code code-idx data data-idx])
 
 (defn program-complete?
   "Checks if the code pointer is past the end of the code symbol vector"
@@ -156,6 +156,7 @@
           :sub (recur (bfstate-sub bfstate))
           :print (recur (bfstate-print bfstate))
           :input (recur (bfstate-input bfstate))
+          
           (throw  (Exception. "Unrecognized symbol in parsed source code")))))))
 
 
@@ -164,7 +165,6 @@
   [symbols]
   (println (clbf-eval-loop (map->BFState {:code (vec symbols)
                                           :code-idx 0
-                                          :open-bracket-idx 0
                                           :data (vec (replicate 10 0))
                                           :data-idx 0}))))
 
