@@ -4,7 +4,12 @@ Brainfuck interpreter written in Clojure
 
 ## Installation
 
-Download latest jar file from Releases tab.
+### Pre-requisites
+- Java (known to work with Java version 1.8.0_201)
+- `java` binary accessible from the command line 
+
+### CLBF Jar File
+Download latest jar file (`clbf-0.1.0-SNAPSHOT-standalone.jar`) from **Releases** tab.
 
 ## Usage
 In the same folder as the downloaded jar file:
