@@ -152,9 +152,9 @@
           code-val (nth code idx)]
       (case code-val
         :while (recur (inc idx) (inc active-whiles))
-        :end (if (zero? active-whiles) 
-                 (assoc bfstate :code-idx (inc idx))
-                 (recur (inc idx) (dec active-whiles)))
+        :end (if (zero? active-whiles)
+               (assoc bfstate :code-idx (inc idx))
+               (recur (inc idx) (dec active-whiles)))
         (recur (inc idx) active-whiles)))))
 
 (defn bfstate-while
@@ -176,7 +176,7 @@
           code-val (nth code idx)]
       (case code-val
         :end (recur (dec idx) (inc active-ends))
-        :while (if (zero? active-ends) 
+        :while (if (zero? active-ends)
                  (assoc bfstate :code-idx (inc idx))
                  (recur (dec idx) (dec active-ends)))
         (recur (dec idx) active-ends)))))
@@ -216,21 +216,15 @@
   [symbols]
   (println "")
   (let [result (clbf-eval-loop (map->BFState {:code (vec symbols)
-                                          :code-idx 0
-                                          :data (vec (replicate 10 0))
-                                          :data-idx 0}))]
+                                              :code-idx 0
+                                              :data (vec (replicate 10 0))
+                                              :data-idx 0}))]
     (println "")
     (println "")
     (println result)))
 
-
-(defn repl
-  "REP 1x"
-  []
-  (println "Brainf* Interpreter: ")
-  (clbf-eval (clbf-read (slurp *in*))))
-
 (defn -main
-  "Repl for Brainf*: Main entry"
+  "Execute Brainfuck code: print output and final internal representation"
   [& args]
-  (repl))
+  (println "Enter Brainfuck code, then pass EOF character twice (likely Ctrl + D):")
+  (clbf-eval (clbf-read (slurp *in*))))

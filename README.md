@@ -1,44 +1,40 @@
 # clbf
 
-FIXME: description
+Brainfuck interpreter written in Clojure
 
 ## Installation
 
-Download from http://example.com/FIXME.
+Download latest jar file from Releases tab.
 
 ## Usage
+In the same folder as the downloaded jar file:
 
-FIXME: explanation
-
-    $ java -jar clbf-0.1.0-standalone.jar [args]
-
-## Options
-
-FIXME: listing of options this app accepts.
+    $ java -jar clbf-0.1.0-SNAPSHOT-standalone.jar [args]
 
 ## Examples
 
-...
+### Interactive
+```
+$ java -jar clbf-0.1.0-SNAPSHOT-standalone.jar
+Enter Brainfuck code, then pass EOF character twice (likely Ctrl + D):
+>+++++++++[<++++++++>-]<.>+++++++[<++++>-]<+.+++++++..+++.[-]
+>++++++++[<++++>-] <.>+++++++++++[<++++++++>-]<-.--------.+++
+.------.--------.[-]>++++++++[<++++>- ]<+.[-]++++++++++.
 
-### Bugs
+Hello world!
 
-...
 
-### Any Other Sections
-### That You Think
-### Might be Useful
+#clbf.core.BFState{:code [:rmov :add :add :add :add :add :add :add :add :add :while :lmov :add :add :add :add :add :add :add :add :rmov :sub :end :lmov :print :rmov :add :add :add :add :add :add :add :while :lmov :add :add :add :add :rmov :sub :end :lmov :add :print :add :add :add :add :add :add :add :print :print :add :add :add :print :while :sub :end :rmov :add :add :add :add :add :add :add :add :while :lmov :add :add :add :add :rmov :sub :end :lmov :print :rmov :add :add :add :add :add :add :add :add :add :add :add :while :lmov :add :add :add :add :add :add :add :add :rmov :sub :end :lmov :sub :print :sub :sub :sub :sub :sub :sub :sub :sub :print :add :add :add :print :sub :sub :sub :sub :sub :sub :print :sub :sub :sub :sub :sub :sub :sub :sub :print :while :sub :end :rmov :add :add :add :add :add :add :add :add :while :lmov :add :add :add :add :rmov :sub :end :lmov :add :print :while :sub :end :add :add :add :add :add :add :add :add :add :add :print], :code-idx 176, :data [10 0 0 0 0 0 0 0 0 0], :data-idx 0}
+```
 
-## License
+### From file (try helloworld.bf)
 
-Copyright © 2019 FIXME
+```
+sriram@sriram-G551JK:~/Projects/clbf$ java -jar target/uberjar/clbf-0.1.0-SNAPSHOT-standalone.jar < helloworld.bf 
+Enter Brainfuck code, then pass EOF character twice (likely Ctrl + D):
 
-This program and the accompanying materials are made available under the
-terms of the Eclipse Public License 2.0 which is available at
-http://www.eclipse.org/legal/epl-2.0.
+Hello world!
 
-This Source Code may also be made available under the following Secondary
-Licenses when the conditions for such availability set forth in the Eclipse
-Public License, v. 2.0 are satisfied: GNU General Public License as published by
-the Free Software Foundation, either version 2 of the License, or (at your
-option) any later version, with the GNU Classpath Exception which is available
-at https://www.gnu.org/software/classpath/license.html.
+
+#clbf.core.BFState{:code [:rmov :add :add :add :add :add :add :add :add :add :while :lmov :add :add :add :add :add :add :add :add :rmov :sub :end :lmov :print :rmov :add :add :add :add :add :add :add :while :lmov :add :add :add :add :rmov :sub :end :lmov :add :print :add :add :add :add :add :add :add :print :print :add :add :add :print :while :sub :end :rmov :add :add :add :add :add :add :add :add :while :lmov :add :add :add :add :rmov :sub :end :lmov :print :rmov :add :add :add :add :add :add :add :add :add :add :add :while :lmov :add :add :add :add :add :add :add :add :rmov :sub :end :lmov :sub :print :sub :sub :sub :sub :sub :sub :sub :sub :print :add :add :add :print :sub :sub :sub :sub :sub :sub :print :sub :sub :sub :sub :sub :sub :sub :sub :print :while :sub :end :rmov :add :add :add :add :add :add :add :add :while :lmov :add :add :add :add :rmov :sub :end :lmov :add :print :while :sub :end :add :add :add :add :add :add :add :add :add :add :print], :code-idx 176, :data [10 0 0 0 0 0 0 0 0 0], :data-idx 0}
+```
