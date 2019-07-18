@@ -26,7 +26,6 @@
                  \, :input})
 
 ; Helper functions
-
 (defn any-nil?
   "Checks for any nil values in sequence"
   [symbols]
@@ -40,6 +39,12 @@
   [coll]
   (not (empty? coll)))
 
+; Data types
+; BF code symbols, index to next symbol to execute, index of last open bracket,
+; array of integers (data), current data pointer
+(defrecord BFState [code code-idx open-bracket-idx data data-idx])
+
+; Primary functions for interpreter
 (defn mismatched-brackets?
   "Checks if any brackets don't form a matching pair"
   [symbols]
@@ -69,25 +74,36 @@
     symbols))
 
 (defn clbf-read
-  "Repl: Reader - Applies symbol map onto source code char by char"
+  "Repl: Reader - Transform each source code char into internal symbol representation"
   [src-code]
   (check-for-errors
    (map bf-symbols
         (seq src-code))))
 
+(defn clbf-eval-loop
+  "Execute symbol by symbol"
+  [bfstate]
+  (let [symbol (nth (get bfstate :code) (get bfstate :code-idx))]
+    (println symbol)))
+
 (defn clbf-eval
   "Repl: Evaluator"
-  [arg] ; do nothing with this
-  arg)
+  [symbols] 
+  (clbf-eval-loop (map->BFState {:code (vec symbols)
+                                          :code-idx 0
+                                          :open-bracket-idx 0
+                                          :data (vec (replicate 10 0))
+                                          :data-idx 0})))
+
 
 (defn repl
   "Repl Loop"
   []
-  (println (clbf-eval (clbf-read (read-line))))
+  (println "Brainf* Interpreter: ")
+  (clbf-eval (clbf-read (read-line)))
   (recur))
 
 (defn -main
   "Repl for Brainf*: Main entry"
   [& args]
-  (println "Brainf* Interpreter: ")
   (repl))
