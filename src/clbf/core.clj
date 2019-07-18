@@ -71,8 +71,9 @@
   "Check for any nil symbols or mismatched braces"
   [symbols]
   (cond
-    (any-nil? symbols)
-    (throw (Exception. "Invalid character in source code."))
+    ; Unrecognized characters are just ignored - this is for debugging only
+    ; (any-nil? symbols)
+    ; (throw (Exception. "Invalid character in source code."))
     (mismatched-brackets? symbols)
     (throw (Exception. "Mismatched brackets in source code."))
     :else
@@ -81,9 +82,10 @@
 (defn clbf-read
   "Repl: Reader - Transform all source code chars into internal symbol representation"
   [src-code]
-  (check-for-errors
-   (map bf-symbols
-        (seq src-code))))
+  (filter (complement nil?)
+          (check-for-errors
+           (map bf-symbols
+                (seq src-code)))))
 
 ; Evaluation functions
 (defn bfstate-advance
@@ -141,6 +143,54 @@
     ; (print new-data-val)
     (bfstate-advance (assoc bfstate :data new-data))))
 
+(defn bfstate-jump-forward
+  "Find the matching :end and jump to the symbol after it (matching => no more unmatched whiles)"
+  [bfstate]
+  (loop [idx (get bfstate :code-idx)
+         active-whiles -1]
+    (let [code (get bfstate :code)
+          code-val (nth code idx)]
+      (case code-val
+        :while (recur (inc idx) (inc active-whiles))
+        :end (if (zero? active-whiles) 
+                 (assoc bfstate :code-idx (inc idx))
+                 (recur (inc idx) (dec active-whiles)))
+        (recur (inc idx) active-whiles)))))
+
+(defn bfstate-while
+  "If the byte at the data pointer is zero, then instead of moving the instruction pointer forward to the next command, jump it forward to the command after the matching ] command."
+  [bfstate]
+  (let [old-data (get bfstate :data)
+        data-idx (get bfstate :data-idx)
+        data-val (nth old-data data-idx)]
+    (if (zero? data-val)
+      (bfstate-jump-forward bfstate)
+      (bfstate-advance bfstate))))
+
+(defn bfstate-jump-backward
+  "Find the matching :while and jump to the symbol after it (matching => no more unmatched ends)"
+  [bfstate]
+  (loop [idx (get bfstate :code-idx)
+         active-ends -1]
+    (let [code (get bfstate :code)
+          code-val (nth code idx)]
+      (case code-val
+        :end (recur (dec idx) (inc active-ends))
+        :while (if (zero? active-ends) 
+                 (assoc bfstate :code-idx (inc idx))
+                 (recur (dec idx) (dec active-ends)))
+        (recur (dec idx) active-ends)))))
+
+(defn bfstate-end
+  "if the byte at the data pointer is nonzero, then instead of moving the instruction pointer forward to the next command, jump it back to the command after the matching [ command."
+  [bfstate]
+  (let [old-data (get bfstate :data)
+        data-idx (get bfstate :data-idx)
+        data-val (nth old-data data-idx)]
+    (if (not (zero? data-val))
+      (bfstate-jump-backward bfstate)
+      (bfstate-advance bfstate))))
+
 (defn clbf-eval-loop
   "Execute symbol by symbol"
   [bfstate]
@@ -148,7 +198,7 @@
     (if (program-complete? bfstate)
       bfstate
       (let [current-symbol (nth (get bfstate :code) (get bfstate :code-idx))]
-        (println current-symbol)
+        ; (println current-symbol)
         (case current-symbol
           :rmov (recur (bfstate-rmov bfstate))
           :lmov (recur (bfstate-lmov bfstate))
@@ -156,25 +206,29 @@
           :sub (recur (bfstate-sub bfstate))
           :print (recur (bfstate-print bfstate))
           :input (recur (bfstate-input bfstate))
-          
+          :while (recur (bfstate-while bfstate))
+          :end (recur (bfstate-end bfstate))
           (throw  (Exception. "Unrecognized symbol in parsed source code")))))))
 
 
 (defn clbf-eval
   "Runs the evaluator loop, passing it the initial program state"
   [symbols]
-  (println (clbf-eval-loop (map->BFState {:code (vec symbols)
+  (println "")
+  (let [result (clbf-eval-loop (map->BFState {:code (vec symbols)
                                           :code-idx 0
                                           :data (vec (replicate 10 0))
-                                          :data-idx 0}))))
+                                          :data-idx 0}))]
+    (println "")
+    (println "")
+    (println result)))
 
 
 (defn repl
-  "Repl Loop"
+  "REP 1x"
   []
   (println "Brainf* Interpreter: ")
-  (clbf-eval (clbf-read (read-line)))
-  (recur))
+  (clbf-eval (clbf-read (slurp *in*))))
 
 (defn -main
   "Repl for Brainf*: Main entry"
